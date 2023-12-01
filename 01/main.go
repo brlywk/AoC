@@ -18,6 +18,9 @@ func main() {
 		log.Fatalf("Unable to read file %v", fileName)
 	}
 
+	// Part 2: Adjust data before calculating results
+	data = PrepareData(data)
+
 	result := EvaluateContent(data)
 	fmt.Printf("Result: %v", result)
 }
@@ -29,6 +32,33 @@ func GetFileContents(fileName *string) (string, error) {
 	}
 
 	return string(content), nil
+}
+
+// Part 2: Prepare input file to find spelled out numbers
+func PrepareData(content string) string {
+	// Let's cheat a little bit:
+	// Issues can be caused if letters of numbers overlap, e.g. eight two -> eightwo
+	// So let's just keep the first and last letter of the word and mash the number inbetween
+	// This way, we prevent numbers to be lost on replace but can still regex away all letters
+	wordToNumber := map[string]string{
+		"one":   "o1e",
+		"two":   "t2o",
+		"three": "t3e",
+		"four":  "f4r",
+		"five":  "f5e",
+		"six":   "s6x",
+		"seven": "s7n",
+		"eight": "e8t",
+		"nine":  "n9e",
+	}
+
+	adjustedData := content 
+
+	for numAsStr, strNum := range wordToNumber {
+		adjustedData = strings.ReplaceAll(adjustedData, numAsStr, strNum)
+	}
+
+	return adjustedData
 }
 
 func EvaluateContent(content string) int {
@@ -65,4 +95,3 @@ func EvaluateContent(content string) int {
 
 	return sum
 }
-

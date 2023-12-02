@@ -79,3 +79,14 @@ func TestEvaluateGame(t *testing.T) {
 		t.Fatalf("Invalid result. Expected: %v\tGot: %v", expected, result)
 	}
 }
+
+func TestEvaluateGamePart2(t *testing.T) {
+	parsedGames := ParseInput(testFileContent)
+	result := EvaluateGamesPart2(parsedGames)
+
+	expected := 2286
+
+	if result != expected {
+		t.Fatalf("Invalid result. Expected: %v\tGot: %v", expected, result)
+	}
+}

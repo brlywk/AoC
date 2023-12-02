@@ -33,9 +33,12 @@ func main() {
 	}
 
 	parsedGames := ParseInput(content)
-	result := EvaluateGames(parsedGames)
 
-	log.Printf("Sum of valid game's IDs: %v", result)
+	part1 := EvaluateGames(parsedGames)
+	part2 := EvaluateGamesPart2(parsedGames)
+
+	log.Printf("Part 1\tSum of valid game's IDs: %v", part1)
+	log.Printf("Part 2\tSum of power games: %v", part2)
 }
 
 // Read the content of a file and return as string
@@ -117,4 +120,16 @@ func EvaluateGames(games []GameInfo) int {
 	}
 
 	return sumValid
+}
+
+// Modified evaluation for Part 2
+func EvaluateGamesPart2(games []GameInfo) int {
+	sumPower := 0
+
+	for _, game := range games {
+		power := game.MaxRed * game.MaxBlue * game.MaxGreen
+		sumPower += power
+	}
+
+	return sumPower
 }

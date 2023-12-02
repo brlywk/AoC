@@ -2,8 +2,26 @@ package main
 
 import (
 	"log"
+	"os"
 	"testing"
 )
+
+var testFileContent string
+
+func testSetup() error {
+	var err error
+	testFileContent, err = ReadFile(TEST_FILE)
+	return err
+}
+
+func TestMain(m *testing.M) {
+	if setupErr := testSetup(); setupErr != nil {
+		log.Fatalf("Test setup has failed: %v", setupErr)
+	}
+
+	exitCode := m.Run()
+	os.Exit(exitCode)
+}
 
 // Test file reading ability...
 func TestReadFile(t *testing.T) {
@@ -44,12 +62,7 @@ func TestParseLine(t *testing.T) {
 }
 
 func TestParseInput(t *testing.T) {
-	content, err := ReadFile(TEST_FILE)
-	if err != nil {
-		t.Errorf("Unable to read test file %v", TEST_FILE)
-	}
-
-	lines:= ParseInput(content)
+	lines := ParseInput(testFileContent)
 
 	if len(lines) < 5 {
 		t.Fatalf("Results should contain at least 5 structs")
@@ -57,14 +70,7 @@ func TestParseInput(t *testing.T) {
 }
 
 func TestEvaluateGame(t *testing.T) {
-	const fileToParse string = TEST_FILE
-
-	content, err := ReadFile(fileToParse)
-	if err != nil {
-		log.Fatalf("Unable to read file %v. Exiting", fileToParse)
-	}
-
-	parsedGames := ParseInput(content)
+	parsedGames := ParseInput(testFileContent)
 	result := EvaluateGames(parsedGames)
 
 	expected := 8
@@ -73,4 +79,3 @@ func TestEvaluateGame(t *testing.T) {
 		t.Fatalf("Invalid result. Expected: %v\tGot: %v", expected, result)
 	}
 }
-

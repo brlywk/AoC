@@ -13,15 +13,30 @@ const (
 	TEST_FILE  = "input_test.txt"
 )
 
+type Symbol struct {
+	X     int
+	Y     int
+	Value string
+}
+
+func (sym Symbol) String() string {
+	return fmt.Sprintf("{ Value: %v, X: %v, Y: %v}", sym.Value, sym.X, sym.Y)
+}
+
+func (sym Symbol) Equals(otherSym Symbol) bool {
+	return sym.Value == otherSym.Value && sym.X == otherSym.X && sym.Y == otherSym.Y
+}
+
 type Number struct {
 	Value      int
 	Line       int
 	StartIndex int
 	EndIndex   int
+	Symbol
 }
 
 func (num Number) String() string {
-	return fmt.Sprintf("{ Value: %v, Line: %v, StartIndex: %v, EndIndex: %v}", num.Value, num.Line, num.StartIndex, num.EndIndex)
+	return fmt.Sprintf("{ Value: %v, Line: %v, StartIndex: %v, EndIndex: %v, Symbol: %v}", num.Value, num.Line, num.StartIndex, num.EndIndex, num.Symbol)
 }
 
 // ---- helper functions ----
@@ -45,6 +60,11 @@ func IsSymbol(mysteryValue string) bool {
 	return mysteryValue != "." && !IsNumber(mysteryValue)
 }
 
+// Check if the symbol of two numbers are the same
+func SameSymbol(num1 Number, num2 Number) bool {
+	return num1.Symbol.Equals(num2.Symbol)
+}
+
 func main() {
 	log.Println("Advent of Code 2023 - Day 3")
 
@@ -55,9 +75,11 @@ func main() {
 
 	matrix := ConvertToStringMatrix(content)
 	validNums := FindValidNumbers(&matrix)
-	result := EvaluateGamePart1(&validNums)
+	game1 := EvaluateGamePart1(&validNums)
+	game2 := EvaluateGamePart2(&validNums)
 
-	log.Printf("Part 1 - Sum: %v", result)
+	log.Printf("Part 1 - Sum: %v", game1)
+	log.Printf("Part 2 - Ratio: %v", game2)
 }
 
 func ReadFile(fileName string) (string, error) {
@@ -87,7 +109,7 @@ func ConvertToStringMatrix(data string) [][]string {
 }
 
 // Check for adjacent symbol
-func HasAdjacentSymbols(matrix *[][]string, num *Number) bool {
+func HasAdjacentSymbols(matrix *[][]string, num *Number) (bool, Symbol) {
 	// Range for symbols are line - 1, start - 1 to line + 1, end + 1
 
 	// Define the range of indices we need to cover
@@ -127,12 +149,12 @@ func HasAdjacentSymbols(matrix *[][]string, num *Number) bool {
 		for j := startIndex; j <= endIndex; j++ {
 			if IsSymbol((*matrix)[i][j]) {
 				// log.Printf("Num: %v\tChar at [%v][%v]: %v\n", num, i, j, (*matrix)[i][j])
-				return true
+				return true, Symbol{Value: (*matrix)[i][j], X: i, Y: j}
 			}
 		}
 	}
 
-	return false
+	return false, Symbol{}
 }
 
 // Find a number and return start and end index
@@ -170,7 +192,10 @@ func FindValidNumbers(matrix *[][]string) []Number {
 					EndIndex:   j - 1,
 				}
 
-				if HasAdjacentSymbols(matrix, &newNum) {
+				hasAdjacent, symbol := HasAdjacentSymbols(matrix, &newNum)
+
+				if hasAdjacent {
+					newNum.Symbol = symbol
 					result = append(result, newNum)
 				}
 
@@ -195,3 +220,25 @@ func EvaluateGamePart1(validNums *[]Number) int {
 
 	return sum
 }
+
+func EvaluateGamePart2(nums *[]Number) int {
+	sum := 0
+	symbolMap := map[Symbol][]Number{}
+
+	for _, num := range *nums {
+		if num.Symbol.Value == "*" {
+			// note to self: Go adds a key automatically if it doesn't exist and
+			// append also works on nil slices
+			symbolMap[num.Symbol] = append(symbolMap[num.Symbol], num)
+		}
+	}
+
+	for _, v := range symbolMap {
+		if len(v) == 2 {
+			sum += v[0].Value * v[1].Value
+		}
+	}
+
+	return sum
+}
+

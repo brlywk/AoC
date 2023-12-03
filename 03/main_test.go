@@ -90,6 +90,42 @@ func TestIsSymbol(t *testing.T) {
 	}
 }
 
+func TestSameSymbol(t *testing.T) {
+	sym1 := Symbol{
+		Value: "*",
+		X:     4,
+		Y:     2,
+	}
+	sym2 := Symbol{
+		Value: "*",
+		X:     4,
+		Y:     2,
+	}
+	sym3 := Symbol{
+		Value: "*",
+		X:     2,
+		Y:     3,
+	}
+
+	num1 := Number{
+		Symbol: sym1,
+	}
+	num2 := Number{
+		Symbol: sym2,
+	}
+	num3 := Number{
+		Symbol: sym3,
+	}
+
+	if !SameSymbol(num1, num2) {
+		t.Errorf("Both have the same symbol: %v and %v", num1.Symbol, num2.Symbol)
+	}
+
+	if SameSymbol(num1, num3) {
+		t.Errorf("Both have different symbols: %v and %v", num1.Symbol, num3.Symbol)
+	}
+}
+
 // ---- Main functions ----
 func TestReadFile(t *testing.T) {
 	if len(fileContent) < 1 {
@@ -114,11 +150,14 @@ func TestHasAdjacentSymbols(t *testing.T) {
 	noSymbol := [][]string{{".", "4", "2", "."}}
 	hasSymbol := [][]string{{".", ".", ".", "."}, {".", "4", "2", "."}, {".", ".", ".", "$"}}
 
-	if HasAdjacentSymbols(&noSymbol, &testNum1) {
+	r1, _ := HasAdjacentSymbols(&noSymbol, &testNum1)
+	r2, _ := HasAdjacentSymbols(&hasSymbol, &testNum2)
+
+	if r1 {
 		t.Errorf("Failed. %v has no adjacent symbol", noSymbol)
 	}
 
-	if !HasAdjacentSymbols(&hasSymbol, &testNum2) {
+	if !r2 {
 		t.Errorf("Failed. %v has one adjacent symbol", hasSymbol)
 	}
 
@@ -138,6 +177,17 @@ func TestEvaluateGamePart1(t *testing.T) {
 	result := EvaluateGamePart1(&nums)
 
 	expected := 4361
+
+	if result != expected {
+		t.Errorf("Failed. Expected %v, got %v", expected, result)
+	}
+}
+
+func TestEvaluateGamePart2(t *testing.T) {
+	nums := FindValidNumbers(&contentArray)
+	result := EvaluateGamePart2(&nums)
+
+	expected := 467835
 
 	if result != expected {
 		t.Errorf("Failed. Expected %v, got %v", expected, result)

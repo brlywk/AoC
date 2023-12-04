@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"slices"
 	"testing"
 )
 
@@ -38,6 +39,17 @@ func TestCountSameElements(t *testing.T) {
 	}
 }
 
+func TestGetNextNumbers(t *testing.T) {
+	n := 1
+	c := 4
+	r := GetNextNumbers(n, c)
+	e := []int{2, 3, 4, 5}
+
+	if !slices.Equal(r, e) {
+		t.Errorf("Expected: %v, got %v", e, r)
+	}
+}
+
 func TestParseGameInput(t *testing.T) {
 	lines := ParseInput(fileContent)
 	expectedLen := 6
@@ -48,6 +60,7 @@ func TestParseGameInput(t *testing.T) {
 }
 
 func TestParseGames(t *testing.T) {
+	// log.Println("\n\nTestParseGames")
 	lines := ParseInput(fileContent)
 	games := ParseGames(lines)
 	r := len(games)
@@ -59,10 +72,23 @@ func TestParseGames(t *testing.T) {
 }
 
 func TestEvaluatePart1(t *testing.T) {
+	// log.Println("\n\nEvaluatePart1")
 	lines := ParseInput(fileContent)
 	games := ParseGames(lines)
 	r := EvaluatePart1(games)
 	e := 13
+
+	if r != e {
+		t.Errorf("Expected %v, got %v", e, r)
+	}
+}
+
+func TestEvaluatePart2(t *testing.T) {
+	// log.Println("\n\nEvaluatePart1")
+	lines := ParseInput(fileContent)
+	games := ParseGames(lines)
+	r := EvaluatePart2(games)
+	e := 30
 
 	if r != e {
 		t.Errorf("Expected %v, got %v", e, r)

@@ -20,11 +20,12 @@ type GameInfo struct {
 	WinningNumbers []int
 	PlayerNumbers  []int
 	Points         int
+	CardsWon       []int
 }
 
 func (g GameInfo) String() string {
-	return fmt.Sprintf("{ Id: %v, WinningNumbers: %v, PlayerNumbers: %v, Points: %v}",
-		g.Id, g.WinningNumbers, g.PlayerNumbers, g.Points)
+	return fmt.Sprintf("{ Id: %v, WinningNumbers: %v, PlayerNumbers: %v, Points: %v, CardsWon: %v}",
+		g.Id, g.WinningNumbers, g.PlayerNumbers, g.Points, g.CardsWon)
 }
 
 func main() {
@@ -37,8 +38,10 @@ func main() {
 	lines := ParseInput(content)
 	games := ParseGames(lines)
 	points := EvaluatePart1(games)
+	cards := EvaluatePart2(games)
 
 	log.Printf("Day 4 - Part 1: %v", points)
+	log.Printf("Day 4 - Part 2: %v", cards)
 }
 
 // ---- Helper ----------------------------------
@@ -56,6 +59,16 @@ func CountSameElements(winNums []int, playerNums []int) int {
 		}
 	}
 	return count
+}
+
+func GetNextNumbers(num int, count int) []int {
+	var result []int
+
+	for i := num; i < num+count; i++ {
+		result = append(result, i+1)
+	}
+
+	return result
 }
 
 // ---- Part 1 ----------------------------------
@@ -91,8 +104,10 @@ func ParseGames(games []string) []GameInfo {
 		// no error handling in here, so no check if len(...) > 1
 		// let's assume input is well formatted and has no error
 		idAndNums := strings.Split(game, ":")
-		gameIdStr := strings.Split(idAndNums[0], " ")[1]
-		gameId, _ := strconv.Atoi(gameIdStr)
+		gameIdStr := strings.Split(idAndNums[0], " ")
+		// NOTE: There can be multiple spaces between "Card" and the number,
+		// so take the last index!
+		gameId, _ := strconv.Atoi(gameIdStr[len(gameIdStr)-1])
 		winAndPlay := strings.Split(idAndNums[1], "|")
 
 		winNumsStr := strings.Fields(winAndPlay[0])
@@ -111,15 +126,18 @@ func ParseGames(games []string) []GameInfo {
 
 		countMatches := CountSameElements(winNums, playerNums)
 		points := math.Pow(2, float64(countMatches)-1)
+		winsCards := GetNextNumbers(gameId, countMatches)
 
 		gameInfo := GameInfo{
 			Id:             gameId,
 			WinningNumbers: winNums,
 			PlayerNumbers:  playerNums,
 			Points:         int(points),
+			CardsWon:       winsCards,
 		}
 
 		result = append(result, gameInfo)
+		// log.Printf("%v", gameInfo)
 	}
 
 	return result
@@ -133,4 +151,26 @@ func EvaluatePart1(games []GameInfo) int {
 	}
 
 	return sum
+}
+
+func EvaluatePart2(games []GameInfo) int {
+	// map of card id to number of times the card was won
+	wonCards := map[int]int{}
+	total := 0
+
+	for _, game := range games {
+		// card counts for itself
+		wonCards[game.Id]++
+
+		for _, idOfWonCard := range game.CardsWon {
+			wonCards[idOfWonCard] += wonCards[game.Id]
+		}
+	}
+
+	for _, v := range wonCards {
+		// log.Printf("Game Id: %v\tCount Won: %v", k, v)
+		total += v
+	}
+
+	return total
 }

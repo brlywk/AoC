@@ -32,7 +32,7 @@ func TestCountSameElements(t *testing.T) {
 	p := []int{2, 4, 6, 8, 10}
 	expected := 2
 
-	c := CountSameElements(w, p)
+	c := CountSameElements(&w, &p)
 
 	if c != expected {
 		t.Errorf("Expected %v, got %v", expected, c)
@@ -51,7 +51,7 @@ func TestGetNextNumbers(t *testing.T) {
 }
 
 func TestParseGameInput(t *testing.T) {
-	lines := ParseInput(fileContent)
+	lines := ParseInput(&fileContent)
 	expectedLen := 6
 
 	if len(lines) != expectedLen {
@@ -61,8 +61,8 @@ func TestParseGameInput(t *testing.T) {
 
 func TestParseGames(t *testing.T) {
 	// log.Println("\n\nTestParseGames")
-	lines := ParseInput(fileContent)
-	games := ParseGames(lines)
+	lines := ParseInput(&fileContent)
+	games := ParseGames(&lines)
 	r := len(games)
 	e := 6
 
@@ -73,9 +73,9 @@ func TestParseGames(t *testing.T) {
 
 func TestEvaluatePart1(t *testing.T) {
 	// log.Println("\n\nEvaluatePart1")
-	lines := ParseInput(fileContent)
-	games := ParseGames(lines)
-	r := EvaluatePart1(games)
+	lines := ParseInput(&fileContent)
+	games := ParseGames(&lines)
+	r := EvaluatePart1(&games)
 	e := 13
 
 	if r != e {
@@ -85,9 +85,9 @@ func TestEvaluatePart1(t *testing.T) {
 
 func TestEvaluatePart2(t *testing.T) {
 	// log.Println("\n\nEvaluatePart1")
-	lines := ParseInput(fileContent)
-	games := ParseGames(lines)
-	r := EvaluatePart2(games)
+	lines := ParseInput(&fileContent)
+	games := ParseGames(&lines)
+	r := EvaluatePart2(&games)
 	e := 30
 
 	if r != e {

@@ -35,10 +35,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to read input file: %v", err)
 	}
-	lines := ParseInput(content)
-	games := ParseGames(lines)
-	points := EvaluatePart1(games)
-	cards := EvaluatePart2(games)
+	lines := ParseInput(&content)
+	games := ParseGames(&lines)
+	points := EvaluatePart1(&games)
+	cards := EvaluatePart2(&games)
 
 	log.Printf("Day 4 - Part 1: %v", points)
 	log.Printf("Day 4 - Part 2: %v", cards)
@@ -48,13 +48,13 @@ func main() {
 
 // Count how many winning numbers a player has
 // not a general function, as we know len(playerNums) > len(winNums)
-func CountSameElements(winNums []int, playerNums []int) int {
+func CountSameElements(winNums *[]int, playerNums *[]int) int {
 	// once more: no error handling to keep it short
 	count := 0
 
-	for _, pnum := range playerNums {
+	for _, pnum := range *playerNums {
 		// we could iterate again, but let's use something built-in
-		if slices.Index(winNums, pnum) > -1 {
+		if slices.Index(*winNums, pnum) > -1 {
 			count++
 		}
 	}
@@ -82,9 +82,9 @@ func ReadFile(fileName string) (string, error) {
 	return string(content), nil
 }
 
-func ParseInput(content string) []string {
+func ParseInput(content *string) []string {
 	var result []string
-	lines := strings.Split(strings.ReplaceAll(content, "\r\n", "\n"), "\n")
+	lines := strings.Split(strings.ReplaceAll(*content, "\r\n", "\n"), "\n")
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -97,10 +97,10 @@ func ParseInput(content string) []string {
 	return result
 }
 
-func ParseGames(games []string) []GameInfo {
+func ParseGames(games *[]string) []GameInfo {
 	var result []GameInfo
 
-	for _, game := range games {
+	for _, game := range *games {
 		// no error handling in here, so no check if len(...) > 1
 		// let's assume input is well formatted and has no error
 		idAndNums := strings.Split(game, ":")
@@ -124,7 +124,7 @@ func ParseGames(games []string) []GameInfo {
 			playerNums = append(playerNums, pnumint)
 		}
 
-		countMatches := CountSameElements(winNums, playerNums)
+		countMatches := CountSameElements(&winNums, &playerNums)
 		points := math.Pow(2, float64(countMatches)-1)
 		winsCards := GetNextNumbers(gameId, countMatches)
 
@@ -143,22 +143,24 @@ func ParseGames(games []string) []GameInfo {
 	return result
 }
 
-func EvaluatePart1(games []GameInfo) int {
+func EvaluatePart1(games *[]GameInfo) int {
 	sum := 0
 
-	for _, game := range games {
+	for _, game := range *games {
 		sum += game.Points
 	}
 
 	return sum
 }
 
-func EvaluatePart2(games []GameInfo) int {
+// ---- Part 2 ----------------------------------
+
+func EvaluatePart2(games *[]GameInfo) int {
 	// map of card id to number of times the card was won
 	wonCards := map[int]int{}
 	total := 0
 
-	for _, game := range games {
+	for _, game := range *games {
 		// card counts for itself
 		wonCards[game.Id]++
 

@@ -24,6 +24,8 @@ type MapRange struct {
 	Length int
 }
 
+type SeedsPart2 []MapRange
+
 type Mapping map[MapRange]MapRange
 
 type MappingBlock struct {
@@ -41,10 +43,12 @@ func main() {
 
 	seeds := GetSeedData(&lines)
 	blocks := GetMappingBlocks(&lines)
-
 	part1 := EvaluatePart1(&seeds, &blocks)
+	log.Printf("Part 1: %v\n", part1)
 
-	log.Printf("Part 1: %v", part1)
+	seedsPart2 := ConvertSeedsToSeedsPart2(&seeds)
+	part2 := EvaluatePart2(&seedsPart2, &blocks)
+	log.Printf("Part 2: %v\n", part2)
 }
 
 // ----- Helper ---------------------------------
@@ -194,6 +198,7 @@ func GetDestination(source int, mapping *Mapping) int {
 	var sourcePos int
 
 	for src, dest := range *mapping {
+		// log.Printf("Source Range: %v\tDest Range: %v\n", src, dest)
 		if source >= src.Start && source < src.Start+src.Length {
 			isMapped = true
 			foundDestMap = dest
@@ -229,6 +234,62 @@ func EvaluatePart1(seeds *Seeds, mappingBlocks *[7]MappingBlock) int {
 		location := GetLocationForSeed(seed, mappingBlocks)
 		if location < lowestLocation {
 			lowestLocation = location
+		}
+	}
+
+	return lowestLocation
+}
+
+// ----- Part 2 ----------------------------------
+
+// Not a generalised function, we need slices of size 2 for Start and Length
+func ConvertSeedsToSeedsPart2(seeds *Seeds) SeedsPart2 {
+	var results SeedsPart2
+
+	for i := 0; i < len(*seeds)-1; i += 2 {
+		newSeed := MapRange{
+			Start:  (*seeds)[i],
+			Length: (*seeds)[i+1],
+		}
+
+		results = append(results, newSeed)
+	}
+
+	return results
+}
+
+// Evaluate the mapping data and return the lowest location number
+// WARN: This is just massive parallel brute forcing and not efficient at all
+// But it works, and my brain doesn't brain anymore...
+func EvaluatePart2(seedRanges *SeedsPart2, mappingBlocks *[7]MappingBlock) int {
+	lowestLocation := math.MaxInt
+
+	lowestCh := make(chan int, len(*seedRanges))
+
+	for i, seedRange := range *seedRanges {
+		localSeed := seedRange
+
+		go func(w int, seed *MapRange) {
+			log.Printf("🏃Worker %v started with seed range %v", w, seed)
+			workerLowest := math.MaxInt
+
+			for i := seed.Start; i < seed.Start+seed.Length; i++ {
+				location := GetLocationForSeed(i, mappingBlocks)
+				if location < workerLowest {
+					log.Printf("\tWorker %v found new lowest location\t\t%v\n", w, workerLowest)
+					workerLowest = location
+				}
+			}
+
+			lowestCh <- workerLowest
+			log.Printf("\t\tWorker %v done.", w)
+		}(i, &localSeed)
+	}
+
+	for l := range lowestCh {
+		if l < lowestLocation {
+			log.Printf("ℹ️ New lowest found: %v\n", l)
+			lowestLocation = l
 		}
 	}
 

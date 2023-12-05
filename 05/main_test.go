@@ -129,3 +129,42 @@ func TestEvaluatePart1(t *testing.T) {
 		t.Errorf("Expected %v, got %v", e, r)
 	}
 }
+
+// ----- Part 2 ----------------------------------
+
+func TestConvertSeedsToSeedsPart2(t *testing.T) {
+	lines := ParseInput(&fileContent)
+	seeds := GetSeedData(&lines)
+
+	r := ConvertSeedsToSeedsPart2(&seeds)
+	e := SeedsPart2{MapRange{Start: 79, Length: 14}, MapRange{Start: 55, Length: 13}}
+
+	lr := len(r)
+	le := len(e)
+
+	if lr != le {
+		t.Errorf("Length mismatch. Expected %v, got %v", le, lr)
+	}
+
+	for i, mr := range r {
+		if mr != e[i] {
+			t.Errorf("Element mismatch. Expected %v, got %v", e[i], mr)
+
+		}
+	}
+}
+
+
+func TestEvaluatePart2(t *testing.T) {
+	lines := ParseInput(&fileContent)
+	initSeeds := GetSeedData(&lines)
+	seeds:= ConvertSeedsToSeedsPart2(&initSeeds)
+	maps := GetMappingBlocks(&lines)
+
+	r := EvaluatePart2(&seeds, &maps)
+	e := 46
+
+	if r != e {
+		t.Errorf("Expected %v, got %v", e, r)
+	}
+}

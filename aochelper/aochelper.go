@@ -1,41 +1,79 @@
 package aochelper
 
 import (
+	"bufio"
 	"os"
 	"strings"
 )
 
-// Read a file and convert it to a string
+// Struct holding input data from a file
 //
-// Returns the content of a file or an empty string and an error
-func ReadFile(fileName string) (string, error) {
-	content, err := os.ReadFile(fileName)
-	if err != nil {
-		return "", err
-	}
-
-	return string(content), nil
+// Important:
+// Use NewInputData to create this struct
+type InputData struct {
+	fileName string
+	content  string
+	lines    []string
 }
 
-// Convert a string representing the contents of a file to a string array
-// for easier processing
+// Creates a new InputData struct by reading a file and splitting the content into lines
 //
-// Returns an empty array if the string was empty
-func ConvertContentToSlice(content *string) []string {
-	if len(*content) == 0 {
-		return []string{}
+// stripEmptyLines specifies if empty lines should be omitted
+func NewInputData(fileName string, stripEmptyLines bool) (inputData *InputData, err error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
 	}
+	defer file.Close()
 
-	var result []string
-	lines := strings.Split(strings.ReplaceAll(*content, "\r\n", "\n"), "\n")
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
 
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
+	var builder strings.Builder
+	var lines []string
 
-		if len(line) > 0 {
-			result = append(result, line)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if stripEmptyLines && len(line) == 0 {
+			continue
+		} else {
+			lines = append(lines, line)
+			_, err := builder.WriteString(line + "\n")
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
-	return result
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	content := builder.String()
+	data := InputData{
+		fileName,
+		content,
+		lines,
+	}
+
+	return &data, nil
+}
+
+// Returns the lines of the InputData struct
+func (id *InputData) GetLines() []string {
+	if id.lines == nil {
+		return []string{}
+	}
+	return id.lines
+}
+
+// Returns the content of the file as a single string
+func (id *InputData) GetContent() string {
+	return id.content
+}
+
+// Return the file name of the file originally read
+func (id *InputData) GetFileName() string {
+	return id.fileName
 }

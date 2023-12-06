@@ -20,11 +20,16 @@ type Race struct {
 func main() {
 	log.Println("Advent of Code 2023 - Day 6")
 
-	content, err := aochelper.ReadFile(InputFile)
+	// content, err := aochelper.ReadFile(InputFile)
+	// if err != nil {
+	// 	log.Fatalf("Error reading input file: %v", err)
+	// }
+	// lines := aochelper.ConvertContentToSlice(&content)
+	data, err := aochelper.NewInputData(InputFile, true)
 	if err != nil {
-		log.Fatalf("Error reading input file: %v", err)
+		log.Fatalf("Error creating data: %v", err)
 	}
-	lines := aochelper.ConvertContentToSlice(&content)
+	lines := data.GetLines()
 
 	racesPart1 := ParseInputPart1(&lines)
 	part1 := EvaluatePart1(&racesPart1)

@@ -8,19 +8,17 @@ import (
 
 const TestFile = "input_test.txt"
 
-var (
-	testContent string
-	testData    []string
-)
+var testData *aochelper.InputData
+var testLines []string
 
 func testSetup() error {
 	var err error
-	testContent, err = aochelper.ReadFile(TestFile)
+	testData, err = aochelper.NewInputData(TestFile, true)
 	if err != nil {
-		return err
+		log.Fatalf("Error creating testData: %v", err)
 	}
 
-	testData = aochelper.ConvertContentToSlice(&testContent)
+	testLines = testData.GetLines()
 
 	return nil
 }
@@ -68,7 +66,7 @@ func TestCalculateWaysToBeatRecord(t *testing.T) {
 // ---- Part 1 ----------------------------------
 
 func TestParseInputPart1(t *testing.T) {
-	actual := ParseInputPart1(&testData)
+	actual := ParseInputPart1(&testLines)
 	expected := []Race{{Time: 7, BestDistance: 9}, {Time: 15, BestDistance: 40}, {Time: 30, BestDistance: 200}}
 	expectedLen := len(expected)
 
@@ -84,7 +82,7 @@ func TestParseInputPart1(t *testing.T) {
 }
 
 func TestEvaluatePart1(t *testing.T) {
-	races := ParseInputPart1(&testData)
+	races := ParseInputPart1(&testLines)
 	actual := EvaluatePart1(&races)
 	expected := 288
 
@@ -96,7 +94,7 @@ func TestEvaluatePart1(t *testing.T) {
 // ---- Part 2 ----------------------------------
 
 func TestParseInputPart2(t *testing.T) {
-	actual := ParseInputPart2(&testData)
+	actual := ParseInputPart2(&testLines)
 	expected := Race{Time: 71530, BestDistance: 940200}
 
 	if actual != expected {
@@ -105,7 +103,7 @@ func TestParseInputPart2(t *testing.T) {
 }
 
 func TestEvaluatePart2(t *testing.T) {
-	race := ParseInputPart2(&testData)
+	race := ParseInputPart2(&testLines)
 	actual := EvaluatePart2(&race)
 	expected := 71503
 
@@ -113,3 +111,4 @@ func TestEvaluatePart2(t *testing.T) {
 		t.Errorf("Expected: %v\tActual: %v", expected, actual)
 	}
 }
+

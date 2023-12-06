@@ -31,22 +31,6 @@ func TestMain(m *testing.M) {
 	}
 }
 
-func TestParseInput(t *testing.T) {
-	actual := ParseInput(&testData)
-	expected := []Race{{Time: 7, BestDistance: 9}, {Time: 15, BestDistance: 40}, {Time: 30, BestDistance: 200}}
-	expectedLen := len(expected)
-
-	if len(actual) != expectedLen {
-		t.Errorf("Length mismatc. Expected: %v\tActual: %v", expectedLen, len(actual))
-	}
-
-	for i, a := range actual {
-		if a != expected[i] {
-			t.Errorf("Element mismatch. Expected: %v\tActual: %v", expected[i], a)
-		}
-	}
-}
-
 // Once again, let's only test some cases all at once, for brevities sake
 func TestTimePressedToDistance(t *testing.T) {
 	a1 := TimePressedToDistance(7, 2)
@@ -81,10 +65,49 @@ func TestCalculateWaysToBeatRecord(t *testing.T) {
 	}
 }
 
+// ---- Part 1 ----------------------------------
+
+func TestParseInputPart1(t *testing.T) {
+	actual := ParseInputPart1(&testData)
+	expected := []Race{{Time: 7, BestDistance: 9}, {Time: 15, BestDistance: 40}, {Time: 30, BestDistance: 200}}
+	expectedLen := len(expected)
+
+	if len(actual) != expectedLen {
+		t.Errorf("Length mismatc. Expected: %v\tActual: %v", expectedLen, len(actual))
+	}
+
+	for i, a := range actual {
+		if a != expected[i] {
+			t.Errorf("Element mismatch. Expected: %v\tActual: %v", expected[i], a)
+		}
+	}
+}
+
 func TestEvaluatePart1(t *testing.T) {
-	races := ParseInput(&testData)
+	races := ParseInputPart1(&testData)
 	actual := EvaluatePart1(&races)
 	expected := 288
+
+	if actual != expected {
+		t.Errorf("Expected: %v\tActual: %v", expected, actual)
+	}
+}
+
+// ---- Part 2 ----------------------------------
+
+func TestParseInputPart2(t *testing.T) {
+	actual := ParseInputPart2(&testData)
+	expected := Race{Time: 71530, BestDistance: 940200}
+
+	if actual != expected {
+		t.Errorf("Expected: %v\tActual: %v", expected, actual)
+	}
+}
+
+func TestEvaluatePart2(t *testing.T) {
+	race := ParseInputPart2(&testData)
+	actual := EvaluatePart2(&race)
+	expected := 71503
 
 	if actual != expected {
 		t.Errorf("Expected: %v\tActual: %v", expected, actual)

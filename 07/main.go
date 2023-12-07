@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"brlywk/AoC/helper"
 )
@@ -77,6 +78,7 @@ func (h *Hand) Compare(otherHand *Hand, part2 bool) int {
 // ---- Main ------------------------------------
 
 func main() {
+	t := time.Now()
 	log.Println("Advent of Code 2023 - Day 7")
 
 	data, err := aochelper.NewInputData(InputFile, true)
@@ -94,6 +96,7 @@ func main() {
 	handsPart2 = PreparePart2(&handsPart2)
 	part2 := EvaluatePart2(&handsPart2)
 	log.Printf("Part 2: %v\n", part2)
+	log.Printf("Runtime: %.5f seconds", time.Duration.Seconds(time.Since(t)))
 }
 
 // ---- Helper ----------------------------------

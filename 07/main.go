@@ -25,6 +25,7 @@ const (
 )
 
 var Cards = [...]string{"2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"}
+var Cards2 = [...]string{"J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"}
 
 type Hand struct {
 	Raw    string
@@ -38,29 +39,7 @@ func (h Hand) String() string {
 	return fmt.Sprintf("Hand: %v\tMap: %v\tBid: %v\tRank: %v\tType: %v\n", h.Raw, h.RawMap, h.Bid, h.Rank, h.RawMap)
 }
 
-func (h *Hand) IsBetterThan(otherHand *Hand) bool {
-	if h.Type != otherHand.Type {
-		return h.Type > otherHand.Type
-	}
-
-	for i, c := range (*h).Raw {
-		cStr := string(c)
-		ocStr := string((*otherHand).Raw[i])
-
-		cIdx := slices.Index(Cards[:], cStr)
-		ocIdx := slices.Index(Cards[:], ocStr)
-
-		if cIdx != ocIdx {
-			return cIdx > ocIdx
-		}
-	}
-
-	return false
-}
-
-func (h *Hand) Compare(otherHand *Hand) int {
-	// log.Printf("Comparing %v and %v", h.Raw, otherHand.Raw)
-
+func (h *Hand) Compare(otherHand *Hand, part2 bool) int {
 	if h.Type != otherHand.Type {
 		if h.Type > otherHand.Type {
 			return 1
@@ -69,14 +48,17 @@ func (h *Hand) Compare(otherHand *Hand) int {
 		}
 	}
 
+	slice := Cards[:]
+	if part2 {
+		slice = Cards2[:]
+	}
+
 	for i, c := range (*h).Raw {
 		cStr := string(c)
 		ocStr := string((*otherHand).Raw[i])
 
-		cIdx := slices.Index(Cards[:], cStr)
-		ocIdx := slices.Index(Cards[:], ocStr)
-
-		// log.Printf("\tcIdx: %v\tocIdx: %v\n", cIdx, ocIdx)
+		cIdx := slices.Index(slice, cStr)
+		ocIdx := slices.Index(slice, ocStr)
 
 		if cIdx == ocIdx {
 			continue
@@ -103,10 +85,15 @@ func main() {
 	}
 	lines := data.GetLines()
 
-	handsPart1 := ParseInput(&lines)
-	handsPart1 = PreparePar1(&handsPart1)
+	handsPart1 := ParseInput(&lines, false)
+	handsPart1 = PreparePart1(&handsPart1)
 	part1 := EvaluatePart1(&handsPart1)
 	log.Printf("Part 1: %v\n", part1)
+
+	handsPart2 := ParseInput(&lines, true)
+	handsPart2 = PreparePart2(&handsPart2)
+	part2 := EvaluatePart2(&handsPart2)
+	log.Printf("Part 2: %v\n", part2)
 }
 
 // ---- Helper ----------------------------------
@@ -195,11 +182,34 @@ func IsOnePair(m *map[string]int) bool {
 	return len(*m) == 4
 }
 
-// func IsHighCard(m *map[string]int) bool {
-// 	return len(*m) == 5
-// }
+func FillJokers(rawMap *map[string]int) {
+	m := *rawMap
+	_, hasJoker := m["J"]
+	if !hasJoker {
+		return
+	}
 
-func GetHandType(rawMap *map[string]int) HandType {
+	jokerCount := m["J"]
+	delete(m, "J")
+
+	highestKeyCount := 0
+	keyToFill := ""
+
+	for k, v := range m {
+		if v > highestKeyCount {
+			highestKeyCount = v
+			keyToFill = k
+		}
+	}
+
+	m[keyToFill] += jokerCount
+}
+
+func GetHandType(rawMap *map[string]int, part2 bool) HandType {
+	if part2 {
+		FillJokers(rawMap)
+	}
+
 	if IsFiveOfAKind(rawMap) {
 		return 6
 	}
@@ -227,7 +237,7 @@ func GetHandType(rawMap *map[string]int) HandType {
 	return 0
 }
 
-func ParseInput(lines *[]string) []Hand {
+func ParseInput(lines *[]string, part2 bool) []Hand {
 	var result []Hand
 
 	for _, line := range *lines {
@@ -241,10 +251,8 @@ func ParseInput(lines *[]string) []Hand {
 			RawMap: rawMap,
 			Bid:    bid,
 			Rank:   0,
-			Type:   GetHandType(&rawMap),
+			Type:   GetHandType(&rawMap, part2),
 		}
-
-		// log.Printf("Hand\t%v", hand)
 
 		result = append(result, hand)
 	}
@@ -252,10 +260,11 @@ func ParseInput(lines *[]string) []Hand {
 	return result
 }
 
-func SortHands(hands *[]Hand) {
+func SortHands(hands *[]Hand, part2 bool) {
 	slices.SortStableFunc(*hands, func(h1, h2 Hand) int {
-		return h1.Compare(&h2)
+		return h1.Compare(&h2, part2)
 	})
+
 	slices.Reverse(*hands)
 }
 
@@ -270,16 +279,37 @@ func AssignRank(hands *[]Hand) {
 
 // ---- Part 1 ----------------------------------
 
-func PreparePar1(hands *[]Hand) []Hand {
+func PreparePart1(hands *[]Hand) []Hand {
 	handCopy := *hands
 
-	SortHands(&handCopy)
+	SortHands(&handCopy, false)
 	AssignRank(&handCopy)
 
 	return handCopy
 }
 
 func EvaluatePart1(hands *[]Hand) int {
+	sum := 0
+
+	for _, hand := range *hands {
+		sum += hand.Bid * hand.Rank
+	}
+
+	return sum
+}
+
+// ---- Part 2 ----------------------------------
+
+func PreparePart2(hands *[]Hand) []Hand {
+	handCopy := *hands
+
+	SortHands(&handCopy, true)
+	AssignRank(&handCopy)
+
+	return handCopy
+}
+
+func EvaluatePart2(hands *[]Hand) int {
 	sum := 0
 
 	for _, hand := range *hands {

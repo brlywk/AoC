@@ -2,6 +2,7 @@ package aochelper
 
 import (
 	"testing"
+	"time"
 )
 
 const testFile = "input_test.txt"
@@ -64,4 +65,10 @@ func TestInputDataWithEmptyLines(t *testing.T) {
 			t.Errorf("Incorrect line.\tExpected: %v\tActual: %v", expectedLines[i], line)
 		}
 	}
+}
+
+func TestMeasure(t *testing.T) {
+	defer Measure("Test")()
+
+	time.Sleep(1 * time.Second)
 }

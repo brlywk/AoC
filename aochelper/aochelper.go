@@ -2,8 +2,10 @@ package aochelper
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 // Struct holding input data from a file
@@ -76,4 +78,14 @@ func (id *InputData) GetContent() string {
 // Return the file name of the file originally read
 func (id *InputData) GetFileName() string {
 	return id.fileName
+}
+
+// Measure the time something takes to execute;
+// Usage: defer Measure("Hello there took")()
+func Measure(msg string) func() {
+	start := time.Now()
+
+	return func() {
+		fmt.Printf("Measure\t\t%v\t%v\n", msg, time.Since(start))
+	}
 }

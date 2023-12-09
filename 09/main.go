@@ -3,6 +3,7 @@ package main
 import (
 	"brlywk/AoC/helper"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -66,8 +67,42 @@ func (h *History) CreateExtrapolation() {
 		prev = extrapolatedValue
 	}
 
+	slices.Reverse(addValues)
 	h.Extrapolated = addValues
-	h.Next = h.Raw[len(h.Raw)-1] + addValues[len(addValues) - 1]
+
+	h.Next = h.Raw[len(h.Raw)-1] + addValues[0]
+}
+
+// Part 2
+type PreHistory struct {
+	Ref           *History
+	Leftrapolated []int
+	Prev          int
+}
+
+func (p PreHistory) String() string {
+	return fmt.Sprintf("{\n\tHistory: %v\n\tLeft: %v\nPrev: %v\n}\n\n", p.Ref, p.Leftrapolated, p.Prev)
+}
+
+func (p *PreHistory) CreateLeftrapolation() {
+	addValues := []int{}
+	extras := p.Ref.Extras
+
+	prev := 0
+
+	for i := len(extras) - 1; i >= 0; i-- {
+		curr := extras[i]
+
+		firstValue := curr[0]
+		leftrapolatedValue := firstValue - prev
+		addValues = append(addValues, leftrapolatedValue)
+		prev = leftrapolatedValue
+	}
+
+	slices.Reverse(addValues)
+	p.Leftrapolated = addValues
+
+	p.Prev = p.Ref.Raw[0] - addValues[0]
 }
 
 // ---- Main ------------------------------------
@@ -85,6 +120,10 @@ func main() {
 
 	part1 := EvaluatePart1(&histories)
 	fmt.Printf("Part 1: %v\n", part1)
+
+	preHistories := CreatePrehistoricSlice(&histories)
+	part2 := EvaluatePart2(&preHistories)
+	fmt.Printf("Part 2: %v\n", part2)
 }
 
 // ---- Helper ----------------------------------
@@ -126,6 +165,31 @@ func EvaluatePart1(data *[]History) int {
 
 	for _, h := range *data {
 		sum += h.Next
+	}
+
+	return sum
+}
+
+// ---- Part 2 ----------------------------------
+
+func CreatePrehistoricSlice(data *[]History) []PreHistory {
+	result := []PreHistory{}
+
+	for _, h := range *data {
+		pre := PreHistory{Ref: &h}
+		pre.CreateLeftrapolation()
+
+		result = append(result, pre)
+	}
+
+	return result
+}
+
+func EvaluatePart2(preData *[]PreHistory) int {
+	sum := 0
+
+	for _, p := range *preData {
+		sum += p.Prev
 	}
 
 	return sum

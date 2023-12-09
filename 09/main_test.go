@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 
 func TestParseInput(t *testing.T) {
 	actual := ParseInput(&testLines)[0]
-	expected := History{Raw: []int{0, 3, 6, 9, 12, 15}, Extras: [][]int{{3, 3, 3, 3, 3}, {0, 0, 0, 0}}, Extrapolated: []int{0, 3}, Next: 18}
+	expected := History{Raw: []int{0, 3, 6, 9, 12, 15}, Extras: [][]int{{3, 3, 3, 3, 3}, {0, 0, 0, 0}}, Extrapolated: []int{3, 0}, Next: 18}
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, Actual: %v", expected, actual)
@@ -56,6 +56,28 @@ func TestPart1(t *testing.T) {
 	data := ParseInput(&testLines)
 	actual := EvaluatePart1(&data)
 	expected := 114
+
+	if actual != expected {
+		t.Errorf("Expected: %v, Actual: %v", expected, actual)
+	}
+}
+
+func TestPrehistoricData(t *testing.T) {
+	data := ParseInput(&testLines)
+	preData := CreatePrehistoricSlice(&data)
+	actual := preData[len(preData) - 1].Leftrapolated
+	expected := []int{5, -2, 2, 0}
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected: %v, Actual: %v", expected, actual)
+	}
+}
+
+func TestPart2(t *testing.T) {
+	data := ParseInput(&testLines)
+	preData := CreatePrehistoricSlice(&data)
+	actual := EvaluatePart2(&preData)
+	expected := 2
 
 	if actual != expected {
 		t.Errorf("Expected: %v, Actual: %v", expected, actual)

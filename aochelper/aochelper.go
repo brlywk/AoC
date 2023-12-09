@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// ---- Input Data ------------------------------
+
 // Struct holding input data from a file
 //
 // Important:
@@ -80,6 +82,8 @@ func (id *InputData) GetFileName() string {
 	return id.fileName
 }
 
+// ---- Helper Functions ------------------------
+
 // Measure the time something takes to execute;
 // Usage: defer Measure("Hello there took")()
 func Measure(msg string) func() {
@@ -88,4 +92,24 @@ func Measure(msg string) func() {
 	return func() {
 		fmt.Printf("Measure\t\t%v\t%v\n", msg, time.Since(start))
 	}
+}
+
+// Prints a message and quits the program;
+// 
+// Pretty much the same as log.Fatalf, just way cooler
+func PrintAndQuit(msg string, m ...any) {
+	fmt.Printf(msg, m...)
+	os.Exit(1)
+}
+
+// Good old Map function... applies a function to each element of 'slice'
+// and returns a slice with the results
+func MapSlice[T any, R any](slice []T, mapFunc func(T) R) []R {
+	result := make([]R, cap(slice))
+
+	for i, v := range slice {
+		result[i] = mapFunc(v)
+	}
+
+	return result
 }

@@ -1,8 +1,9 @@
 package aochelper
 
 import (
+	"reflect"
+	"strconv"
 	"testing"
-	"time"
 )
 
 const testFile = "input_test.txt"
@@ -67,8 +68,15 @@ func TestInputDataWithEmptyLines(t *testing.T) {
 	}
 }
 
-func TestMeasure(t *testing.T) {
-	defer Measure("Test")()
+func TestMapStringToInt(t *testing.T) {
+	input := []string{"1", "2", "3"}
+	actual := MapSlice(input, func(e string) int {
+		n, _ := strconv.Atoi(e)
+		return n
+	})
+	expected := []int{1, 2, 3}
 
-	time.Sleep(1 * time.Second)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, Actual %v", expected, actual)
+	}
 }

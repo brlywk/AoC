@@ -80,3 +80,23 @@ func TestMapStringToInt(t *testing.T) {
 		t.Errorf("Expected %v, Actual %v", expected, actual)
 	}
 }
+
+func TestCreateMatrix(t *testing.T) {
+	input := []string{"AB", "CD"}
+	actual := CreateMatrix(&input)
+	expected := [][]string{{"A", "B"}, {"C", "D"}}
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v, Actual %v", expected, actual)
+	}
+}
+
+func TestPrintRefSlice(t *testing.T) {
+	s1 := "Hello there"
+	s2 := "General Kenobi"
+	s3 := "May the force be with you"
+
+	input := []*string{&s1, &s2, &s3}
+
+	PrintRefSlice(input)
+}

@@ -95,7 +95,7 @@ func Measure(msg string) func() {
 }
 
 // Prints a message and quits the program;
-// 
+//
 // Pretty much the same as log.Fatalf, just way cooler
 func PrintAndQuit(msg string, m ...any) {
 	fmt.Printf(msg, m...)
@@ -112,4 +112,32 @@ func MapSlice[T any, R any](slice []T, mapFunc func(T) R) []R {
 	}
 
 	return result
+}
+
+// Converts a string slice into a string matrix, i.e. a slice of slices
+func CreateMatrix(lines *[]string) [][]string {
+	result := [][]string{}
+
+	for _, line := range *lines {
+		split := strings.Split(line, "")
+		result = append(result, split)
+	}
+
+	return result
+}
+
+// Prints a slice that only contains references to some other type
+func PrintRefSlice[T any](slice []*T) {
+	if len(slice) == 0 {
+		return
+	}
+
+	fmt.Print("{ ")
+	for i, s := range slice {
+		fmt.Printf("%v", *s)
+		if i != len(slice) -1 {
+			fmt.Print(", ")
+		}
+	}
+	fmt.Print(" }")
 }

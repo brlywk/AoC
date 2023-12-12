@@ -50,3 +50,13 @@ func TestEvalPart1(t *testing.T) {
 		t.Errorf("Expected: %v, Actual: %v", expected, actual)
 	}
 }
+
+func TestEvalPart2(t *testing.T) {
+	unfoldedLines := UnfoldPatterns(&testLines)
+	actual := EvaluatePart1(unfoldedLines)
+	expected := 525152
+
+	if actual != expected {
+		t.Errorf("Expected: %v, Actual: %v", expected, actual)
+	}
+}

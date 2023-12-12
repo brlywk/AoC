@@ -44,7 +44,6 @@ func CountCombinations(line string, nums []int) int {
 
 	count := 0
 
-	// if line[0] == '.' || line[0] == '?' {
 	if line[0] != '#' {
 		count += CountCombinations(line[1:], nums)
 	}

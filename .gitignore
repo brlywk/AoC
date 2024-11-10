@@ -22,3 +22,10 @@ go.work
 
 # macOS
 .DS_Store
+
+# Rust stuff
+debug/
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb

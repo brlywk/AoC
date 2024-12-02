@@ -6,7 +6,7 @@ fn main() {
     let input = Input::new("inputs/input.txt");
 
     println!("Part1: {}", part1(&input));
-    // println!("Part2: {}", part2(&input));
+    println!("Part2: {}", part2(&input));
 }
 
 fn part1(input: &Input) -> usize {
@@ -24,7 +24,36 @@ fn part1(input: &Input) -> usize {
         .count()
 }
 
+fn part2(input: &Input) -> usize {
+    input
+        .lines
+        .iter()
+        .map(|line| {
+            line.split_whitespace()
+                .map(|s| s.parse::<usize>().unwrap())
+                .collect()
+        })
+        .filter(|line| {
+            remove_one(&line)
+                .iter()
+                .any(|perm| safe_report(perm, &[special_diff, slope]))
+        })
+        .count()
+}
+
 // helper
+
+fn remove_one(level: &Vec<usize>) -> Vec<Vec<usize>> {
+    let mut result = Vec::with_capacity(level.len());
+
+    for i in 0..level.len() {
+        let mut perm = level.clone();
+        perm.remove(i);
+        result.push(perm);
+    }
+
+    result
+}
 
 fn safe_report(level: &Vec<usize>, checks: &[fn(&Vec<usize>) -> bool]) -> bool {
     checks.iter().all(|check| check(&level))
@@ -50,6 +79,14 @@ mod tests {
         let p1 = part1(&input);
 
         assert_eq!(p1, 2);
+    }
+
+    #[test]
+    fn test_part2() {
+        let input = Input::new("inputs/test.txt");
+        let p2 = part2(&input);
+
+        assert_eq!(p2, 4);
     }
 
     // helper tests

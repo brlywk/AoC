@@ -19,13 +19,18 @@ main :: proc() {
 //////////////////////////////////////////////////
 
 part1 :: proc(input: []u8) -> string {
-	return "42"
+	defer free_all(context.temp_allocator)
+
+	result := 42
+
+	return fmt.aprint(result)
 }
 
 @(test)
 part1_test :: proc(t: ^testing.T) {
 	expected := "42"
 	actual := part1(TEST)
+	defer delete(actual)
 
 	testing.expect_value(t, actual, expected)
 }
@@ -35,13 +40,18 @@ part1_test :: proc(t: ^testing.T) {
 //////////////////////////////////////////////////
 
 part2 :: proc(input: []u8) -> string {
-	return "42"
+	defer free_all(context.temp_allocator)
+
+	result := 42
+
+	return fmt.aprint(result)
 }
 
 // @(test)
 // part2_test :: proc(t: ^testing.T) {
 // 	expected := "42"
 // 	actual := part2(TEST)
+// 	defer delete(actual)
 //
 // 	testing.expect_value(t, actual, expected)
 // }

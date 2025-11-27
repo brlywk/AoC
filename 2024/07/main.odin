@@ -2,6 +2,7 @@ package main
 
 import "core:fmt"
 import "core:log"
+import "core:math"
 import "core:strconv"
 import "core:strings"
 import "core:testing"
@@ -13,8 +14,8 @@ main :: proc() {
 	p1 := part1(DATA)
 	fmt.println("Part 1:", p1)
 
-	// p2 := part2(DATA)
-	// fmt.println("Part 2:", p2)
+	p2 := part2(DATA)
+	fmt.println("Part 2:", p2)
 }
 
 //////////////////////////////////////////////////
@@ -54,29 +55,26 @@ equation_solvable :: proc(e: Equation, concat_enabled := false) -> bool {
 
 	// n numbers have n-1 operations...
 	n := len(e.parts) - 1
-	// ... and a total of 2^(n-1) permutations
-	permutations := 1 << uint(n)
+	// if we can concatenate, we now have three instead of two operations
+	ops := concat_enabled ? 3 : 2
+	permutations := int(math.pow(f64(ops), f64(n)))
 
 	for perm in 0 ..< permutations {
 		result := e.parts[0]
+		temp_perm := perm
 
 		for i in 0 ..< n {
-			// each permutation is a number, from 0..2^(n-1), so:
-			// 0 -> 0000
-			// 1 -> 0001
-			// 2 -> 0010
-			// 3 -> 0011
-			// ..
-			// 15 -> 1111
-			// etc.
-			//
-			// we can use the lsb as the operation:
-			// 0 = +
-			// 1 = *
-			if (perm >> uint(i)) & 1 == 0 {
+			// make it so that we always wrap around so op is always 0, 1 or 2
+			op := temp_perm % ops
+			temp_perm /= ops
+
+			switch op {
+			case 0:
 				result += e.parts[i + 1]
-			} else {
+			case 1:
 				result *= e.parts[i + 1]
+			case 2:
+				result, _ = strconv.parse_int(fmt.tprintf("%d%d", result, e.parts[i + 1]))
 			}
 		}
 
@@ -130,17 +128,22 @@ part1_test :: proc(t: ^testing.T) {
 part2 :: proc(input: []u8) -> string {
 	defer free_all(context.temp_allocator)
 
-	result := 42
+	result := 0
+	equations := input_parse(input)
+
+	for e in equations do if equation_solvable(e, true) {
+		result += e.expected
+	}
 
 	return fmt.aprint(result)
 }
 
-// @(test)
-// part2_test :: proc(t: ^testing.T) {
-// 	expected := "42"
-// 	actual := part2(TEST)
-// 	defer delete(actual)
-//
-// 	testing.expect_value(t, actual, expected)
-// }
+@(test)
+part2_test :: proc(t: ^testing.T) {
+	expected := "11387"
+	actual := part2(TEST)
+	defer delete(actual)
+
+	testing.expect_value(t, actual, expected)
+}
 

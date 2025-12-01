@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 const TEST: &str = include_str!("./test.txt");
 const DATA: &str = include_str!("./data.txt");
 

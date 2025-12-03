@@ -6,8 +6,8 @@ fn main() {
     let p1 = part1(DATA);
     println!("Part 1: {p1}");
 
-    // let p2 = part2(DATA);
-    // println!("Part 2: {p2}");
+    let p2 = part2(DATA);
+    println!("Part 2: {p2}");
 }
 
 //////////////////////////////////////////////////
@@ -51,13 +51,36 @@ fn part1_test() {
 // Part 2
 //////////////////////////////////////////////////
 
-// fn part2(input: &str) -> String {
-//     let mut result: isize = 0;
-//
-//     result.to_string()
-// }
+fn part2(input: &str) -> String {
+    const N: usize = 12;
 
-// #[test]
-// fn part2_test() {
-//     assert_eq!(part2(TEST), "42");
-// }
+    // for each line, we need to find the largest number of length 12
+    input
+        .trim()
+        .lines()
+        .filter_map(|line| {
+            let mut bytes = line.as_bytes().to_vec();
+            let to_remove = bytes.len() - N;
+
+            // to create a number as large as possible, we want to remove small numbers as
+            // "early" as possible, so check for each number if it is smaller than its
+            // successor and remove it if so... this SHOULD result in the largest number
+            // of length N possible by removing bytes.len - N digits from each line... hopefully
+            for _ in 0..to_remove {
+                // find each index of a number that is smaller than its successor
+                let pos = (0..bytes.len() - 1)
+                    .find(|&idx| bytes[idx] < bytes[idx + 1])
+                    .unwrap_or(bytes.len() - 1);
+                bytes.remove(pos);
+            }
+
+            String::from_utf8(bytes).ok()?.parse::<usize>().ok()
+        })
+        .sum::<usize>()
+        .to_string()
+}
+
+#[test]
+fn part2_test() {
+    assert_eq!(part2(TEST), "3121910778619");
+}
